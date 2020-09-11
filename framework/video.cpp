@@ -15,6 +15,8 @@ static uint8_t imageData[CAM_SX * CAM_SY * 3];
 
 int main(int argc, char * argv[])
 {
+	setupPaths(CHIBI_RESOURCE_PATHS);
+
 	if (!framework.init(640, 480))
 		return -1;
 	
