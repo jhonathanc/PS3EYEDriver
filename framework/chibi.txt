@@ -11,7 +11,7 @@ library libps3eye
 
 	header_path ../src expose
 
-	depend_package LibUSB
+	depend_library libusb
 
 app libps3eye-example-video
 
