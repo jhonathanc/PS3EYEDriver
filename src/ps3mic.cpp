@@ -46,6 +46,15 @@ extern void micStopped();
 
 const int PS3EYEMic::kSampleRate = 16000;
 
+class PS3EYEMicFuncs
+{
+public:
+	static void LIBUSB_CALL handleTransfer(struct libusb_transfer * transfer)
+	{
+		PS3EYEMic::handleTransfer(transfer);
+	}
+};
+
 void PS3EYEMic::handleTransfer(struct libusb_transfer * transfer)
 {
 	PS3EYEMic * mic = (PS3EYEMic*)transfer->user_data;
@@ -310,7 +319,7 @@ bool PS3EYEMic::beginTransfers(const int packetSize, const int numPackets, const
 			transferData,
 			transferSize,
 			numPackets,
-			handleTransfer,
+			PS3EYEMicFuncs::handleTransfer,
 			this,
 			1000);
 		

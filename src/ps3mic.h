@@ -48,6 +48,8 @@ struct AudioCallback
 class PS3EYEMic
 {
 private:
+	friend class PS3EYEMicFuncs;
+
 	libusb_device * device = nullptr;
 	libusb_device_handle * deviceHandle = nullptr;
 	bool started = false;
