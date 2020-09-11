@@ -21,7 +21,7 @@ only has one capsule.
 	#include <stdio.h>
 	#define debugMessage(...) do { fprintf(stdout, __VA_ARGS__); fprintf(stdout, "\n"); } while (false)
 #else
-	#define debugMessage(...)
+	#define debugMessage(...) do { } while (false)
 #endif
 
 namespace ps3eye {
