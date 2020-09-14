@@ -525,11 +525,22 @@ public:
 		{
 			memcpy(new_frame, source, frame_size);
 		}
-		else if (outputFormat == PS3EYECam::EOutputFormat::BGR ||
-				 outputFormat == PS3EYECam::EOutputFormat::RGB)
+		else if (outputFormat == PS3EYECam::EOutputFormat::BGR)
 		{
-			DebayerRGB(frame_width, frame_height, source, new_frame, outputFormat == PS3EYECam::EOutputFormat::BGR);
-		}		
+			DebayerRGB<3, true>(frame_width, frame_height, source, new_frame);
+		}
+		else if (outputFormat == PS3EYECam::EOutputFormat::RGB)
+		{
+			DebayerRGB<3, false>(frame_width, frame_height, source, new_frame);
+		}
+		else if (outputFormat == PS3EYECam::EOutputFormat::BGRA)
+		{
+			DebayerRGB<4, true>(frame_width, frame_height, source, new_frame);
+		}
+		else if (outputFormat == PS3EYECam::EOutputFormat::RGBA)
+		{
+			DebayerRGB<4, false>(frame_width, frame_height, source, new_frame);
+		}
 		else if (outputFormat == PS3EYECam::EOutputFormat::Gray)
 		{
 			DebayerGray(frame_width, frame_height, source, new_frame);
@@ -639,7 +650,8 @@ public:
 		}
 	}
 
-	void DebayerRGB(int frame_width, int frame_height, const uint8_t* inBayer, uint8_t* outBuffer, bool inBGR)
+	template <int num_output_channels, bool inBGR>
+	void DebayerRGB(int frame_width, int frame_height, const uint8_t* inBayer, uint8_t* outBuffer)
 	{
 		// PSMove output is in the following Bayer format (GRBG):
 		//
@@ -650,27 +662,29 @@ public:
 		//
 		// This is the normal Bayer pattern shifted left one place.
 
-		int				num_output_channels	    = 3;
-		int				source_stride			= frame_width;
-		const uint8_t*	source_row				= inBayer;												// Start at first bayer pixel
-		int				dest_stride				= frame_width * num_output_channels;
-		uint8_t*		dest_row				= outBuffer + dest_stride + num_output_channels + 1; 	// We start outputting at the second pixel of the second row's G component
-		int				swap_br					= inBGR ? 1 : -1;
+		const int                 source_stride = frame_width;
+		const uint8_t* __restrict source_row    = inBayer;     // Start at first bayer pixel
+		const int                 dest_stride   = frame_width * num_output_channels;
+		uint8_t*       __restrict dest_row      = outBuffer + dest_stride + num_output_channels + 1; // We start outputting at the second pixel of the second row's G component
+		constexpr int             dest_b        = inBGR ? -1 : +1;
+		constexpr int             dest_g        = 0;
+		constexpr int             dest_r        = inBGR ? +1 : -1;
 
 		// Fill rows 1 to height-2 of the destination buffer. First and last row are filled separately (they are copied from the second row and second-to-last rows respectively)
 		for (int y = 0; y < frame_height-2; source_row += source_stride, dest_row += dest_stride, ++y)
 		{
-			const uint8_t* source		= source_row;
-			const uint8_t* source_end	= source + (source_stride-2);								// -2 to deal with the fact that we're starting at the second pixel of the row and should end at the second-to-last pixel of the row (first and last are filled separately)
-			uint8_t* dest				= dest_row;		
+			const uint8_t* __restrict source     = source_row;
+			const uint8_t* __restrict source_end = source + (source_stride-2); // -2 to deal with the fact that we're starting at the second pixel of the row and should end at the second-to-last pixel of the row (first and last are filled separately)
+			      uint8_t* __restrict dest       = dest_row;
 
 			// Row starting with Green
-			if (y % 2 == 0)
+			if ((y & 1) == 0)
 			{
 				// Fill first pixel (green)
-				dest[-1*swap_br]	= (source[source_stride] + source[source_stride + 2] + 1) >> 1;
-				dest[0]				= source[source_stride + 1];
-				dest[1*swap_br]		= (source[1] + source[source_stride * 2 + 1] + 1) >> 1;		
+				dest[dest_b] = (source[source_stride] + source[source_stride + 2] + 1) >> 1;
+				dest[dest_g] = source[source_stride + 1];
+				dest[dest_r] = (source[1] + source[source_stride * 2 + 1] + 1) >> 1;
+				if (num_output_channels == 4) dest[2] = 0xff;
 
 				source++;
 				dest += num_output_channels;
@@ -679,16 +693,18 @@ public:
 				for (; source <= source_end - 2; source += 2, dest += num_output_channels * 2)
 				{
 					// Blue pixel
-					uint8_t* cur_pixel	= dest;
-					cur_pixel[-1*swap_br]	= source[source_stride + 1];
-					cur_pixel[0]			= (source[1] + source[source_stride] + source[source_stride + 2] + source[source_stride * 2 + 1] + 2) >> 2;
-					cur_pixel[1*swap_br]	= (source[0] + source[2] + source[source_stride * 2] + source[source_stride * 2 + 2] + 2) >> 2;				
+					uint8_t* cur_pixel = dest;
+					cur_pixel[dest_b] = source[source_stride + 1];
+					cur_pixel[dest_g] = (source[1] + source[source_stride] + source[source_stride + 2] + source[source_stride * 2 + 1] + 2) >> 2;
+					cur_pixel[dest_r] = (source[0] + source[2] + source[source_stride * 2] + source[source_stride * 2 + 2] + 2) >> 2;
+					if (num_output_channels == 4) cur_pixel[2] = 0xff;
 
 					//  Green pixel
-					uint8_t* next_pixel		= cur_pixel+num_output_channels;
-					next_pixel[-1*swap_br]	= (source[source_stride + 1] + source[source_stride + 3] + 1) >> 1;					
-					next_pixel[0]			= source[source_stride + 2];
-					next_pixel[1*swap_br]	= (source[2] + source[source_stride * 2 + 2] + 1) >> 1;
+					uint8_t* next_pixel = cur_pixel+num_output_channels;
+					next_pixel[dest_b] = (source[source_stride + 1] + source[source_stride + 3] + 1) >> 1;
+					next_pixel[dest_g] = source[source_stride + 2];
+					next_pixel[dest_r] = (source[2] + source[source_stride * 2 + 2] + 1) >> 1;
+					if (num_output_channels == 4) next_pixel[2] = 0xff;
 				}
 			}
 			else
@@ -696,42 +712,47 @@ public:
 				for (; source <= source_end - 2; source += 2, dest += num_output_channels * 2)
 				{
 					// Red pixel
-					uint8_t* cur_pixel	= dest;
-					cur_pixel[-1*swap_br]	= (source[0] + source[2] + source[source_stride * 2] + source[source_stride * 2 + 2] + 2) >> 2;;
-					cur_pixel[0]			= (source[1] + source[source_stride] + source[source_stride + 2] + source[source_stride * 2 + 1] + 2) >> 2;;
-					cur_pixel[1*swap_br]	= source[source_stride + 1];
-
+					uint8_t* cur_pixel = dest;
+					cur_pixel[dest_b] = (source[0] + source[2] + source[source_stride * 2] + source[source_stride * 2 + 2] + 2) >> 2;;
+					cur_pixel[dest_g] = (source[1] + source[source_stride] + source[source_stride + 2] + source[source_stride * 2 + 1] + 2) >> 2;;
+					cur_pixel[dest_r] = source[source_stride + 1];
+					if (num_output_channels == 4) cur_pixel[2] = 0xff;
+					
 					// Green pixel
-					uint8_t* next_pixel		= cur_pixel+num_output_channels;
-					next_pixel[-1*swap_br]	= (source[2] + source[source_stride * 2 + 2] + 1) >> 1;
-					next_pixel[0]			= source[source_stride + 2];
-					next_pixel[1*swap_br]	= (source[source_stride + 1] + source[source_stride + 3] + 1) >> 1;
+					uint8_t* next_pixel = cur_pixel+num_output_channels;
+					next_pixel[dest_b] = (source[2] + source[source_stride * 2 + 2] + 1) >> 1;
+					next_pixel[dest_g] = source[source_stride + 2];
+					next_pixel[dest_r] = (source[source_stride + 1] + source[source_stride + 3] + 1) >> 1;
+					if (num_output_channels == 4) next_pixel[2] = 0xff;
 				}
 			}
 
 			if (source < source_end)
 			{
-				dest[-1*swap_br]	= source[source_stride + 1];
-				dest[0]				= (source[1] + source[source_stride] + source[source_stride + 2] + source[source_stride * 2 + 1] + 2) >> 2;			
-				dest[1*swap_br]		= (source[0] + source[2] + source[source_stride * 2] + source[source_stride * 2 + 2] + 2) >> 2;;			
-
+				dest[dest_b] = source[source_stride + 1];
+				dest[dest_g] = (source[1] + source[source_stride] + source[source_stride + 2] + source[source_stride * 2 + 1] + 2) >> 2;
+				dest[dest_r] = (source[0] + source[2] + source[source_stride * 2] + source[source_stride * 2 + 2] + 2) >> 2;;
+				if (num_output_channels == 4) dest[2] = 0xff;
+				
 				source++;
 				dest += num_output_channels;
 			}
 
 			// Fill first pixel of row (copy second pixel)
-			uint8_t* first_pixel		= dest_row-num_output_channels;
-			first_pixel[-1*swap_br]		= dest_row[-1*swap_br];
-			first_pixel[0]				= dest_row[0];
-			first_pixel[1*swap_br]		= dest_row[1*swap_br];
+			uint8_t* first_pixel = dest_row - num_output_channels;
+			first_pixel[-1] = dest_row[-1];
+			first_pixel[ 0] = dest_row[ 0];
+			first_pixel[+1] = dest_row[+1];
+			if (num_output_channels == 4) first_pixel[2] = 0xff;
 		
  			// Fill last pixel of row (copy second-to-last pixel). Note: dest row starts at the *second* pixel of the row, so dest_row + (width-2) * num_output_channels puts us at the last pixel of the row
 			uint8_t* last_pixel				= dest_row + (frame_width - 2)*num_output_channels;
 			uint8_t* second_to_last_pixel	= last_pixel - num_output_channels;
 			
-			last_pixel[-1*swap_br]			= second_to_last_pixel[-1*swap_br];
-			last_pixel[0]					= second_to_last_pixel[0];
-			last_pixel[1*swap_br]			= second_to_last_pixel[1*swap_br];
+			last_pixel[-1] = second_to_last_pixel[-1];
+			last_pixel[ 0] = second_to_last_pixel[ 0];
+			last_pixel[+1] = second_to_last_pixel[+1];
+			if (num_output_channels == 4) last_pixel[2] = 0xff;
 		}
 
 		// Fill first & last row
@@ -1246,6 +1267,10 @@ uint32_t PS3EYECam::getOutputBytesPerPixel() const
 		return 3;
 	else if (frame_output_format == EOutputFormat::RGB)
 		return 3;
+	else if (frame_output_format == EOutputFormat::BGRA)
+		return 4;
+	else if (frame_output_format == EOutputFormat::RGBA)
+		return 4;
 	else if (frame_output_format == EOutputFormat::Gray)
 		return 1;
 	return 0;

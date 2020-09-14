@@ -11,7 +11,7 @@ using namespace ps3eye;
 
 static std::string errorString;
 
-static uint8_t imageData[CAM_SX * CAM_SY * 3];
+static uint8_t imageData[CAM_SX * CAM_SY * 4];
 
 int main(int argc, char * argv[])
 {
@@ -38,7 +38,7 @@ int main(int argc, char * argv[])
 		if (!eye->init(CAM_SX, CAM_SY, CAM_FPS,
 			CAM_GRAYSCALE
 			? PS3EYECam::EOutputFormat::Gray
-			: PS3EYECam::EOutputFormat::RGB))
+			: PS3EYECam::EOutputFormat::RGBA))
 		{
 			errorString = "failed to initialize PS3 eye camera";
 		}
@@ -81,7 +81,7 @@ int main(int argc, char * argv[])
 			}
 			else
 			{
-				texture.allocate(CAM_SX, CAM_SY, GX_RGB8_UNORM, false, true);
+				texture.allocate(CAM_SX, CAM_SY, GX_RGBA8_UNORM, false, true);
 				texture.upload(imageData, 1, 0);
 			}
 		}
