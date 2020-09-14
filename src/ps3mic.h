@@ -15,8 +15,7 @@ If you want to support my efforts building a new creative coding library,
 an audio-visual patching system, tutorials and examples and ofcourse
 projects like these, please become a patron. :-)
 
-todo : 48kHz sampling rate
-	Marketing materials, Wikipedia etc all consistently say the PS3 Eye camera supports a 48kHz sampling rate. However, the USB audio class descriptor only mentions support for up to 16kHz, and this is what I get. Perhaps it's possible to switch modes? There's a mysterious vendor specific interface in the USB interface descriptor list. Perhaps this is the key?
+note : Marketing materials, Wikipedia etc all consistently say the PS3 Eye camera supports a 48kHz sampling rate. However, the USB audio class descriptor only mentions support for up to 16kHz, and this is what I get. Perhaps it's possible to switch modes? There's a mysterious vendor specific interface in the USB interface descriptor list. Perhaps this is the key? I've explored setting sample rates using the regular method of sending a control message (0x22, 0x01) but this didn't work. Sadly, it seems like we'll have to live with just 16kHz (and less than optimal beam forming performance).
 
 */
 
