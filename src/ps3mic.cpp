@@ -219,6 +219,8 @@ bool PS3EYEMic::initImpl(libusb_device * _device, AudioCallback * _audioCallback
 		// todo : add Windows help text here in case claiming the interface fails
 		// todo : test PS3 eye mic on Windows
 
+		// todo : inform user on Windows installing Zadig ('USB driver installation made easy') may help
+
 		debugMessage("failed to claim interface: %d: %s", res, libusb_error_name(res));
         return false;
     }
