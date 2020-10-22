@@ -76,7 +76,11 @@
 
 	void SetThreadName(const char* threadName)
 	{
-		// Not sure how to implement this on linux/osx, so left empty...
+	#if defined __MACH__ && defined __APPLE__
+		pthread_setname_np(threadName);
+	#else
+		// Not sure how to implement this on linux, so left empty...
+	#endif
 	}
 #endif
 
