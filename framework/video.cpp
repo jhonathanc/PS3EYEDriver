@@ -93,9 +93,9 @@ int main(int argc, char * argv[])
 				pushBlend(BLEND_OPAQUE);
 				{
 					setColor(colorWhite);
-					gxSetTexture(texture.id);
+					gxSetTexture(texture.id, GX_SAMPLE_NEAREST, true);
 					drawRect(0, 0, CAM_SX, CAM_SY);
-					gxSetTexture(0);
+					gxClearTexture();
 				}
 				popBlend();
 			}
