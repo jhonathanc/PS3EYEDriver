@@ -75,13 +75,13 @@ int main(int argc, char * argv[])
 			
 			if (CAM_GRAYSCALE)
 			{
-				texture.allocate(CAM_SX, CAM_SY, GX_R8_UNORM, false, true);
+				texture.allocate(CAM_SX, CAM_SY, GX_R8_UNORM);
 				texture.upload(imageData, 1, 0);
 				texture.setSwizzle(0, 0, 0, GX_SWIZZLE_ONE);
 			}
 			else
 			{
-				texture.allocate(CAM_SX, CAM_SY, GX_RGBA8_UNORM, false, true);
+				texture.allocate(CAM_SX, CAM_SY, GX_RGBA8_UNORM);
 				texture.upload(imageData, 1, 0);
 			}
 		}
