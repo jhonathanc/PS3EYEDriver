@@ -25,11 +25,14 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    # - name: Download libusb
-    #  run: Invoke-WebRequest -Uri https://github.com/libusb/libusb/releases/download/v1.0.26/libusb-1.0.26-binaries.7z
+    - name: Download libusb
+      run: Invoke-WebRequest -Uri https://github.com/libusb/libusb/releases/download/v1.0.26/libusb-1.0.26-binaries.7z
 
     - name: Extract libusb-1.0.26-binaries.7z
-      run: 7z e https://github.com/libusb/libusb/releases/download/v1.0.26/libusb-1.0.26-binaries.7z
+      run: 7z x ./libusb-1.0.26-binaries.7z
+      
+    - name: Exclude libusb-1.0.26-binaries.7z
+      run: Remove-Item ./libusb-1.0.26-binaries.7z
 
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v1.0.2
