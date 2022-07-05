@@ -34,11 +34,11 @@ jobs:
     - name: Exclude libusb-1.0.26-binaries.7z
       run: Remove-Item D:/a/PS3EYEDriver/PS3EYEDriver/libusb-1.0.26-binaries.7z
       
-    - name: Download SDL
+    - name: Download SDL2
       run: Invoke-WebRequest -Uri https://github.com/libsdl-org/SDL/releases/download/release-2.0.22/SDL2-devel-2.0.22-VC.zip -OutFile D:/a/PS3EYEDriver/PS3EYEDriver/SDL2-devel-2.0.22-VC.zip
 
     - name: Extract SDL2-devel-2.0.22-VC.zip
-      run: 7z x D:/a/PS3EYEDriver/PS3EYEDriver/SDL2-devel-2.0.22-VC.zip -oD:/a/PS3EYEDriver/PS3EYEDriver/SDL
+      run: 7z x D:/a/PS3EYEDriver/PS3EYEDriver/SDL2-devel-2.0.22-VC.zip -oD:/a/PS3EYEDriver/PS3EYEDriver/SDL2
       
     - name: Exclude SDL2-devel-2.0.22-VC.zip
       run: Remove-Item D:/a/PS3EYEDriver/PS3EYEDriver/SDL2-devel-2.0.22-VC.zip
