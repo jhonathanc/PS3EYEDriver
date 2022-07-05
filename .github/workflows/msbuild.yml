@@ -35,13 +35,13 @@ jobs:
       run: Remove-Item D:/aPS3EYEDriver/PS3EYEDriver/libusb-1.0.26-binaries.7z
       
     - name: Download SDL
-      run: Invoke-WebRequest -Uri https://github.com/libsdl-org/SDL/releases/download/release-2.0.22/SDL2-2.0.22-win32-x64.zip -OutFile D:/a/PS3EYEDriver/PS3EYEDriver/SDL2-2.0.22-win32-x64.zip.7z
+      run: Invoke-WebRequest -Uri https://github.com/libsdl-org/SDL/releases/download/release-2.0.22/SDL2-devel-2.0.22-VC.zip -OutFile D:/a/PS3EYEDriver/PS3EYEDriver/SDL2-devel-2.0.22-VC.zip
 
-    - name: Extract SDL2-2.0.22-win32-x64.zip
-      run: 7z x D:/a/PS3EYEDriver/PS3EYEDriver/SDL2-2.0.22-win32-x64.zip -oD:/a/PS3EYEDriver/PS3EYEDriver/SDL
+    - name: Extract SDL2-devel-2.0.22-VC.zip
+      run: 7z x D:/a/PS3EYEDriver/PS3EYEDriver/SDL2-devel-2.0.22-VC.zip -oD:/a/PS3EYEDriver/PS3EYEDriver/SDL
       
-    - name: Exclude SDL2-2.0.22-win32-x64.zip
-      run: Remove-Item D:/a/PS3EYEDriver/PS3EYEDriver/SDL2-2.0.22-win32-x64.zip
+    - name: Exclude SDL2-devel-2.0.22-VC.zip
+      run: Remove-Item D:/a/PS3EYEDriver/PS3EYEDriver/SDL2-devel-2.0.22-VC.zip
 
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v1.0.2
