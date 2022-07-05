@@ -32,14 +32,19 @@ jobs:
       run: 7z x D:/a/PS3EYEDriver/PS3EYEDriver/libusb-1.0.26-binaries.7z -oD:/a/PS3EYEDriver/PS3EYEDriver/libusb
       
     - name: Exclude libusb-1.0.26-binaries.7z
-      run: Remove-Item D:/a/PS3EYEDriver/PS3EYEDriver/libusb-1.0.26-binaries.7z
+      run: Remove-Item D:/aPS3EYEDriver/PS3EYEDriver/libusb-1.0.26-binaries.7z
+      
+    - name: Download SDL
+      run: Invoke-WebRequest -Uri https://github.com/libsdl-org/SDL/releases/download/release-2.0.22/SDL2-2.0.22-win32-x64.zip -OutFile D:/a/PS3EYEDriver/PS3EYEDriver/SDL2-2.0.22-win32-x64.zip.7z
+
+    - name: Extract SDL2-2.0.22-win32-x64.zip
+      run: 7z x D:/a/PS3EYEDriver/PS3EYEDriver/SDL2-2.0.22-win32-x64.zip -oD:/a/PS3EYEDriver/PS3EYEDriver/SDL
+      
+    - name: Exclude SDL2-2.0.22-win32-x64.zip
+      run: Remove-Item D:/aPS3EYEDriver/PS3EYEDriver/SDL2-2.0.22-win32-x64.zip
 
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v1.0.2
-
-    - name: Restore NuGet packages
-      working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: nuget restore ${{env.SOLUTION_FILE_PATH}}
 
     - name: Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
