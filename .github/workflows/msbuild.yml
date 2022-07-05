@@ -41,7 +41,7 @@ jobs:
       run: 7z x D:/a/PS3EYEDriver/PS3EYEDriver/SDL2-2.0.22-win32-x64.zip -oD:/a/PS3EYEDriver/PS3EYEDriver/SDL
       
     - name: Exclude SDL2-2.0.22-win32-x64.zip
-      run: Remove-Item D:/aPS3EYEDriver/PS3EYEDriver/SDL2-2.0.22-win32-x64.zip
+      run: Remove-Item D:/a/PS3EYEDriver/PS3EYEDriver/SDL2-2.0.22-win32-x64.zip
 
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v1.0.2
