@@ -29,7 +29,7 @@ jobs:
       run: Invoke-WebRequest -Uri https://github.com/libusb/libusb/releases/download/v1.0.26/libusb-1.0.26-binaries.7z -OutFile D:/a/PS3EYEDriver/PS3EYEDriver/libusb-1.0.26-binaries.7z
 
     - name: Extract libusb-1.0.26-binaries.7z
-      run: 7z x D:/a/PS3EYEDriver/PS3EYEDriver/libusb-1.0.26-binaries.7z -o D:/a/PS3EYEDriver/PS3EYEDriver/libusb
+      run: 7z x D:/a/PS3EYEDriver/PS3EYEDriver/libusb-1.0.26-binaries.7z -oD:/a/PS3EYEDriver/PS3EYEDriver/libusb
       
     - name: Exclude libusb-1.0.26-binaries.7z
       run: Remove-Item D:/a/PS3EYEDriver/PS3EYEDriver/libusb-1.0.26-binaries.7z
